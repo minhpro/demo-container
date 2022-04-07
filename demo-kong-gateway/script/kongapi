@@ -1,0 +1,295 @@
+#!/bin/bash
+
+#kong_host=192.168.2.41
+kong_host=localhost
+kong_operation_port=8001
+kong_proxy_port=8000
+
+#
+# apiをkongに追加
+#
+function addApi()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api add api [api_name] [proxy_host] [request_path]";
+        exit 0
+    fi
+    if [ -z $2 ]; then
+        echo "usage: kong_api add api [api_name] [proxy_host] [request_path]";
+        exit 0
+    fi
+    if [ -z $3 ]; then
+        echo "usage: kong_api add api [api_name] [proxy_host] [request_path]";
+        exit 0
+    fi
+
+    curl -i -X POST --url http://$kong_host:$kong_operation_port/apis \
+    -d "name=$1" \
+    -d "upstream_url=http://$2" \
+    -d "request_path=$3"
+}
+
+#
+# 全てのapiを表示
+#
+function showApis()
+{
+    curl -i -X GET --url http://$kong_host:$kong_operation_port/apis
+}
+
+#
+# 指定のapiを表示
+#
+function showApi()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api show api [api_name]";
+        exit 0
+    fi
+
+    curl -i -X GET --url http://$kong_host:$kong_operation_port/apis/$1
+}
+
+#
+# 指定のapiを表示
+#
+function removeApi()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api rm api [api_name]";
+        exit 0
+    fi
+
+    curl -i -X DELETE --url http://$kong_host:$kong_operation_port/apis/$1
+}
+
+#
+# 指定のAPIにプラグインを追加
+#
+function addPlugin()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api add plugin [api_name] [plugin_name(key-auth/oauth2)]";
+        exit 0
+    fi
+    if [ -z $2 ]; then
+        echo "usage: kong_api add plugin [api_name] [plugin_name(key-auth/oauth2)]";
+        exit 0
+    fi
+    if [ $2 == "oauth2" ]; then
+        # oauth2
+        curl -i -X POST --url http://$kong_host:$kong_operation_port/apis/$1/plugins \
+        --data "name=oauth2" \
+        --data "config.enable_password_grant=true"
+
+    elif [ $2 == "key-auth" ]; then
+        # key-auth
+        curl -i -X POST --url http://$kong_host:$kong_operation_port/apis/$1/plugins \
+        --data "name=key-auth" \
+
+    else
+        echo "usage: kong_api add plugin [api_name] [plugin_name(key-auth/oauth2)]";
+        exit 0
+    fi
+
+}
+
+#
+# 指定のプラグインを削除
+#
+function removePlugin()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api rm plugin [api_name] [plugin_id]";
+        exit 0
+    fi
+    if [ -z $2 ]; then
+        echo "usage: kong_api rm api [api_name] [plugin_id]";
+        exit 0
+    fi
+
+    curl -i -X DELETE --url http://$kong_host:$kong_operation_port/apis/$1/plugins/$2
+}
+
+#
+# 指定のAPIのプラグインを取得
+#
+function showPlugin()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api show plugin [api_name]";
+        exit 0
+    fi
+
+    curl -i -X GET --url http://$kong_host:$kong_operation_port/apis/$1/plugins
+}
+
+#
+# kongにconsumerを追加
+#
+function addConsumer()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api add consumer [consumer_name]";
+        exit 0
+    fi
+
+    curl -i -X POST --url http://$kong_host:$kong_operation_port/consumers \
+    --data "username=$1"
+}
+
+#
+# consumer一覧を取得
+#
+function showConsumers()
+{
+    curl -i -X GET --url http://$kong_host:$kong_operation_port/consumers
+}
+
+#
+# 指定のconsumerを取得
+#
+function showConsumer()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api show consumer [consumer_name]";
+        exit 0
+    fi
+
+    curl -i -X GET --url http://$kong_host:$kong_operation_port/consumers/$1
+}
+
+#
+# 指定のconsumerを削除
+#
+function removeConsumer()
+{
+    if [ -z $1 ]; then
+        echo "usage: kong_api rm consumer [consumer_name]";
+        exit 0
+    fi
+
+    curl -i -X DELETE \
+    --url http://$kong_host:$kong_operation_port/consumers/$1
+}
+
+#
+# kongを経由してリクエスト送信
+#
+function proxyKong()
+{
+    echo $1 | grep "/" > /dev/null
+    if [ $? == 0 ]; then
+        domain=`echo $1 | cut -d / -f 1`
+        path=`echo $1 | cut -d / -f 2-`
+        url=http://$domain:$kong_proxy_port/$path
+    else
+        url=http://$kong_host:$kong_proxy_port/
+    fi
+
+    if [ ! -z $2 ]; then
+        curl -i -X GET --url $url \
+        --header "Host: $1" \
+        --header "apikey: $2"
+    else
+        curl -i -X GET --url $url \
+        --header "Host: $1"
+    fi
+}
+
+
+if [ -z $1 ]; then
+    # show kong status
+    curl http://$kong_host:$kong_operation_port
+elif [ $1 == "add" ]; then
+    if [ -z $2 ]; then
+        echo "usage: kong_api add [api/plugin/consumer]"
+        exit 0
+    fi
+
+    # add api
+    if [ $2 == "api" ]; then
+        addApi $3 $4 $5
+
+    # add plugin
+    elif [ $2 == "plugin" ]; then
+        addPlugin $3 $4
+
+    # add consumer
+    elif [ $2 == "consumer" ]; then
+        addConsumer $3
+
+    # show usage
+    else
+        echo "usage: kong_api add [api/plugin/consumer]"
+        exit 0
+    fi
+
+elif [ $1 == "show" ]; then
+    if [ -z $2 ]; then
+        echo "usage: kong_api show [api(s)/plugin/consumer(s)]"
+        exit 0
+    fi
+
+    # show all apis
+    if [ $2 = "apis" ]; then
+        showApis
+
+    # show an api
+    elif [ $2 = "api" ]; then
+        showApi $3
+
+    # show a plugin
+    elif [ $2 = "plugin" ]; then
+        showPlugin $3
+
+    # show all consumers
+    elif [ $2 = "consumers" ]; then
+        showConsumers
+
+    # show a consumer
+    elif [ $2 = "consumer" ]; then
+        showConsumer $3
+
+    # show usage
+    else
+        echo "usage: kong_api show [api(s)/plugin/consumer(s)]"
+        exit 0
+    fi
+
+elif [ $1 == "rm" ]; then
+    if [ -z $2 ]; then
+        echo "usage: kong_api rm [api/plugin/consumer]"
+        exit 0
+    fi
+
+    # remove an api
+    if [ $2 = "api" ]; then
+        removeApi $3
+
+    # remove a plugin
+    elif [ $2 = "plugin" ]; then
+        removePlugin $3 $4
+
+    # remove a consumer
+    elif [ $2 = "consumer" ]; then
+        removeConsumer $3
+
+    # show usage
+    else
+        echo "usage: kong_api rm [api/plugin/consumer]"
+        exit 0
+    fi
+elif [ $1 == "proxy" ]; then
+    # request with kong
+    if [ -z $2 ]; then
+        echo "usage: kong_api proxy [host] ([key])"
+        exit 0
+    fi
+    proxyKong $2 $3
+
+else
+    echo "invalid option"
+    echo "usage: kong_api [add/proxy]"
+fi
+

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. ./conf
+
+docker run -d --name ${CONTAINER} \
+-p 8000:8000 \
+-p 8001:8001 \
+--net test \
+${TAG}

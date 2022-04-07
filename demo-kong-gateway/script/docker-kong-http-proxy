@@ -1,0 +1,11 @@
+#!/bin/sh
+
+DOCKER_IMG=kong:0.9.1
+host_ip=`ipconfig getifaddr en0`
+
+cat <<EOF | docker build -t $DOCKER_IMG -
+FROM $DOCKER_IMG
+ONBUILD ENV http_proxy $http_proxy
+ONBUILD ENV https_proxy $https_proxy
+ONBUILD ENV no_proxy $no_proxy,$host_ip
+EOF

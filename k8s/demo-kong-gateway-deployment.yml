@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-kong-gateway
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      name: demo-kong-gateway
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: demo-kong-gateway
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                      - demo-kong-gateway
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 600
+      containers:
+        # Fix dns problem https://github.com/Mashape/kong/issues/1601#issuecomment-245474404
+        - name: go-dnsmasq
+          image: janeczku/go-dnsmasq:release-1.0.6
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 3"]
+          args:
+            - --listen
+            - '127.0.0.1:53'
+            - --default-resolver
+            - --append-search-domains
+            - --hostsfile=/etc/hosts
+        - name: kong
+          image: demo-kong-gateway
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 3; /usr/local/openresty/nginx/sbin/nginx -c /usr/local/kong/nginx.conf -p /usr/local/kong/ -s quit; while pgrep -x nginx; do sleep 1; done "]
+          env:
+            - name: DB_HOST
+              value: host.minikube.internal
+            - name: KONG_PG_USER
+              value: kong
+            - name: KONG_PG_PASSWORD
+              value: kong
+            - name: KONG_PG_DATABASE
+              value: kong
+            - name: KONG_TRUSTED_IPS
+              value: 0.0.0.0/0
+            - name: KONG_ADMIN_LISTEN
+              value: '0.0.0.0:8001, 127.0.0.1:8444 ssl'
+          ports:
+            - name: admin
+              containerPort: 8001
+              protocol: TCP
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+            - name: cluster-tcp
+              containerPort: 7946
+              protocol: TCP
+            - name: cluster-udp
+              containerPort: 7946
+              protocol: UDP
+          imagePullPolicy: IfNotPresent
+          #livenessProbe:
+          #  httpGet:
+          #    path: /status
+          #    port: 8001
+          #  initialDelaySeconds: 120
+          #  timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /healthcheck.sh
+            initialDelaySeconds: 60
+            timeoutSeconds: 5

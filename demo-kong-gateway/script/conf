@@ -1,0 +1,6 @@
+#!/bin/bash
+
+TAG="api-gateway"
+VERSION="latest"
+
+CONTAINER="api-gateway"

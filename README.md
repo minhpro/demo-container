@@ -1,3 +1,5 @@
+## Build and run containers
+
 **Build jar**
 
 `./mvnw clean package`
@@ -30,3 +32,17 @@ java8
 **Test API**
 
 `curl localhost:8080/greet`
+
+## Deploy k8s minikube
+
+Create deployment and service
+
+```shell
+kubectl apply -f k8s/demo-container-deployment.yml
+kubectl apply -f k8s/demo-container-service.yml
+```
+
+Expose service to external 
+
+`minikube service --url demo-container-service`
+
