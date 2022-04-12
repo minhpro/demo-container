@@ -26,7 +26,7 @@ RUN mkdir -m 755 -p /usr/local/kong/logs \
  && ln -s /proc/1/fd/1 /usr/local/kong/logs/access.log \
  && ln -s /proc/1/fd/2 /usr/local/kong/logs/error.log \
  && ln -s /proc/1/fd/1 /usr/local/kong/logs/admin_access.log
-COPY kong.conf /etc/kong/
+# COPY kong.conf /etc/kong/
 
 COPY ./files/docker-entrypoint.sh /
 COPY ./files/start.sh /

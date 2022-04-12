@@ -66,6 +66,8 @@ spec:
             - name: KONG_ADMIN_LISTEN
               value: '0.0.0.0:8001, 0.0.0.0:8444 ssl'
               # value: '192.168.59.1:8001, 192.168.59.1:8444 ssl'
+            - name: KONG_STATUS_LISTEN
+              value: 0.0.0.0:8100
           ports:
             - name: admin
               containerPort: 8001
@@ -73,22 +75,25 @@ spec:
             - name: proxy
               containerPort: 8000
               protocol: TCP
-            - name: cluster-tcp
-              containerPort: 7946
+            # - name: cluster-tcp
+            #   containerPort: 7946
+            #   protocol: TCP
+            # - name: cluster-udp
+            #   containerPort: 7946
+            #   protocol: UDP
+            - name: metrics
+              containerPort: 8100
               protocol: TCP
-            - name: cluster-udp
-              containerPort: 7946
-              protocol: UDP
           imagePullPolicy: IfNotPresent
-          #livenessProbe:
-          #  httpGet:
-          #    path: /status
-          #    port: 8001
-          #  initialDelaySeconds: 120
-          #  timeoutSeconds: 5
-          readinessProbe:
-            exec:
-              command:
-                - /healthcheck.sh
-            initialDelaySeconds: 60
-            timeoutSeconds: 5
+          livenessProbe:
+           httpGet:
+             path: /status
+             port: 8001
+           initialDelaySeconds: 120
+           timeoutSeconds: 5
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - /healthcheck.sh
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
