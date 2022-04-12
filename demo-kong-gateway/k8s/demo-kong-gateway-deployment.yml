@@ -18,31 +18,31 @@ spec:
       labels:
         name: demo-kong-gateway
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: name
-                    operator: In
-                    values:
-                      - demo-kong-gateway
-              topologyKey: kubernetes.io/hostname
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       - labelSelector:
+      #           matchExpressions:
+      #             - key: name
+      #               operator: In
+      #               values:
+      #                 - demo-kong-gateway
+      #         topologyKey: kubernetes.io/hostname
       terminationGracePeriodSeconds: 600
       containers:
         # Fix dns problem https://github.com/Mashape/kong/issues/1601#issuecomment-245474404
-        - name: go-dnsmasq
-          image: janeczku/go-dnsmasq:release-1.0.6
-          lifecycle:
-            preStop:
-              exec:
-                command: ["sh", "-c", "sleep 3"]
-          args:
-            - --listen
-            - '127.0.0.1:53'
-            - --default-resolver
-            - --append-search-domains
-            - --hostsfile=/etc/hosts
+        # - name: go-dnsmasq
+        #   image: janeczku/go-dnsmasq:release-1.0.6
+        #   lifecycle:
+        #     preStop:
+        #       exec:
+        #         command: ["sh", "-c", "sleep 3"]
+        #   args:
+        #     - --listen
+        #     - '127.0.0.1:53'
+        #     - --default-resolver
+        #     - --append-search-domains
+        #     - --hostsfile=/etc/hosts
         - name: kong
           image: demo-kong-gateway
           lifecycle:
