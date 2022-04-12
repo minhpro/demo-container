@@ -9,7 +9,7 @@ spec:
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      name: kong-gateway
+      app: kong-gateway
   strategy:
     rollingUpdate:
       maxSurge: 25%
