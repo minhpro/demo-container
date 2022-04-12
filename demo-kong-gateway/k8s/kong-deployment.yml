@@ -6,18 +6,15 @@ metadata:
     app: kong-gateway
 spec:
   replicas: 3
-    revisionHistoryLimit: 3
-    selector:
-      matchLabels:
-        name: kong-gateway
-    strategy:
-      rollingUpdate:
-        maxSurge: 25%
-        maxUnavailable: 50%
-      type: RollingUpdate
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: kong-gateway
+      name: kong-gateway
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 50%
+    type: RollingUpdate
   template:
     metadata:
       labels:
