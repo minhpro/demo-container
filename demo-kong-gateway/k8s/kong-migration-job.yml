@@ -8,7 +8,7 @@ spec:
       containers:
       - name: kong-migration
         image: kong:1.1.2
-        command: ["kong",  "migrations", "bootstrap"]
+        command: ["kong",  "migrations", "bootstrap", "--vv"]
         env:
           - name: KONG_DATABASE
             value: postgres
