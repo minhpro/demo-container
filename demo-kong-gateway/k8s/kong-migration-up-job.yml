@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-      - name: kong-migration-u[]
+      - name: kong-migration-up
         image: kong:1.1.2
         command: ["/bin/sh","-c"]
         args: ["kong migrations up && kong migrations finish"]
