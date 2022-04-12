@@ -29,11 +29,11 @@ spec:
                 value: kong
               - name: KONG_TRUSTED_IPS
                 value: 0.0.0.0/0
-            ports:
-              - name: admin
-                containerPort: 8001
-                protocol: TCP
-              - name: proxy
-                containerPort: 8000
-                protocol: TCP
-            imagePullPolicy: IfNotPresent
+          ports:
+            - name: admin
+              containerPort: 8001
+              protocol: TCP
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
