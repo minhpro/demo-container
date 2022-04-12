@@ -35,6 +35,18 @@ java8
 
 ## Deploy k8s minikube
 
+**Start minikube cluster**
+
+`minikube start --driver=virtualbox`
+
+Check the virtualbox network IP
+
+`ifconfig -a | grep "vbox"`
+
+`ifconfig vboxnet1`
+
+=> IP, e,g: 192.168.59.1
+
 Create deployment and service
 
 ```shell
