@@ -51,12 +51,12 @@ spec:
               containerPort: 8000
               protocol: TCP
             - name: metrics
-                containerPort: 8100
-                protocol: TCP
+              containerPort: 8100
+              protocol: TCP
           imagePullPolicy: IfNotPresent
           livenessProbe:
-           httpGet:
-             path: /status
-             port: 8100
-           initialDelaySeconds: 120
-           timeoutSeconds: 5
+            httpGet:
+              path: /status
+              port: 8100
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
