@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-migration
+spec:
+  template:
+    spec:
+      containers:
+      - name: kong-migration
+        image: kong:1.1.2
+        command: ["kong",  "migrations", "bootstrap"]
+        env:
+          - name: KONG_DATABASE
+            value: postgres
+          - name: KONG_PG_HOST
+            value: host.minikube.internal
+          - name: KONG_PG_USER
+            value: kong
+          - name: KONG_PG_PASSWORD
+            value: kong
+      restartPolicy: Never
+  backoffLimit: 4

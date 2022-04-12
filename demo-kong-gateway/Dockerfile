@@ -21,7 +21,7 @@ ENV TZ=Asia/Tokyo \
  DB_HOST=postgresql \
  KONG_HEADERS=off
 
-COPY custom_nginx_template /usr/local/kong/
+COPY custom_nginx.template /usr/local/kong/
 RUN mkdir -m 755 -p /usr/local/kong/logs \
  && ln -s /proc/1/fd/1 /usr/local/kong/logs/access.log \
  && ln -s /proc/1/fd/2 /usr/local/kong/logs/error.log \
