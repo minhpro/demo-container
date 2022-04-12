@@ -58,3 +58,7 @@ Expose service to external
 
 `minikube service --url demo-container-service`
 
+Open a shell when a Pod has more than one container
+
+`kubectl exec -it my-pod --container demo-container -- /bin/bash`
+

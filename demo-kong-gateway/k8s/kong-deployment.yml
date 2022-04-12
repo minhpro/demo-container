@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-gateway
+  labels:
+    app: kong-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong-gateway
+  template:
+    metadata:
+      labels:
+        app: kong-gateway
+    spec:
+      containers:
+        - name: kong-gateway
+          image: kong:1.1.2
+          imagePullPolicy: IfNotPresent
+          env:
+              - name: KONG_PG_HOST
+                value: host.minikube.internal
+              - name: KONG_PG_USER
+                value: kong
+              - name: KONG_PG_PASSWORD
+                value: kong
+              - name: KONG_PG_DATABASE
+                value: kong
+              - name: KONG_TRUSTED_IPS
+                value: 0.0.0.0/0
+            ports:
+              - name: admin
+                containerPort: 8001
+                protocol: TCP
+              - name: proxy
+                containerPort: 8000
+                protocol: TCP
+            imagePullPolicy: IfNotPresent
