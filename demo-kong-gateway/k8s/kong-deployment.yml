@@ -5,7 +5,16 @@ metadata:
   labels:
     app: kong-gateway
 spec:
-  replicas: 1
+  replicas: 3
+    revisionHistoryLimit: 3
+    selector:
+      matchLabels:
+        name: kong-gateway
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 50%
+      type: RollingUpdate
   selector:
     matchLabels:
       app: kong-gateway
@@ -18,6 +27,10 @@ spec:
         - name: kong-gateway
           image: kong:1.1.2
           imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 3; /usr/local/openresty/nginx/sbin/nginx -c /usr/local/kong/nginx.conf -p /usr/local/kong/ -s quit; while pgrep -x nginx; do sleep 1; done "]
           env:
               - name: KONG_PG_HOST
                 value: host.minikube.internal
@@ -31,6 +44,8 @@ spec:
                 value: 0.0.0.0/0
               - name: KONG_ADMIN_LISTEN
                 value: '0.0.0.0:8001, 0.0.0.0:8444 ssl'
+              - name: KONG_STATUS_LISTEN
+                value: 0.0.0.0:8100
           ports:
             - name: admin
               containerPort: 8001
@@ -38,4 +53,13 @@ spec:
             - name: proxy
               containerPort: 8000
               protocol: TCP
+            - name: metrics
+                containerPort: 8100
+                protocol: TCP
           imagePullPolicy: IfNotPresent
+          livenessProbe:
+           httpGet:
+             path: /status
+             port: 8100
+           initialDelaySeconds: 120
+           timeoutSeconds: 5

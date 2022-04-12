@@ -88,7 +88,7 @@ spec:
           livenessProbe:
            httpGet:
              path: /status
-             port: 8001
+             port: 8100
            initialDelaySeconds: 120
            timeoutSeconds: 5
           # readinessProbe:
