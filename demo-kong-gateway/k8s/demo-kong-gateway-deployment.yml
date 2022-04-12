@@ -61,11 +61,11 @@ spec:
             - name: KONG_TRUSTED_IPS
               value: 0.0.0.0/0
             - name: KONG_PROXY_LISTEN
-              value: '192.168.59.1:8000, 192.168.59.1:8443 ssl'
-              # value: '0.0.0.0:8000, 127.0.0.1:8443 ssl'
+              value: '0.0.0.0:8000, 127.0.0.1:8443 ssl'
+              # value: '192.168.59.1:8000, 192.168.59.1:8443 ssl'
             - name: KONG_ADMIN_LISTEN
-              value: '192.168.59.1:8001, 192.168.59.1:8444 ssl'
-              # value: '0.0.0.0:8001, 127.0.0.1:8444 ssl'
+              value: '0.0.0.0:8001, 127.0.0.1:8444 ssl'
+              # value: '192.168.59.1:8001, 192.168.59.1:8444 ssl'
           ports:
             - name: admin
               containerPort: 8001
