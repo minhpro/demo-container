@@ -18,16 +18,16 @@ spec:
       labels:
         name: demo-kong-gateway
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: name
-                    operator: In
-                    values:
-                      - demo-kong-gateway
-              topologyKey: kubernetes.io/hostname
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       - labelSelector:
+      #           matchExpressions:
+      #             - key: name
+      #               operator: In
+      #               values:
+      #                 - demo-kong-gateway
+      #         topologyKey: kubernetes.io/hostname
       terminationGracePeriodSeconds: 600
       containers:
         # Fix dns problem https://github.com/Mashape/kong/issues/1601#issuecomment-245474404
@@ -66,8 +66,8 @@ spec:
             - name: KONG_ADMIN_LISTEN
               value: '0.0.0.0:8001, 0.0.0.0:8444 ssl'
               # value: '192.168.59.1:8001, 192.168.59.1:8444 ssl'
-            - name: KONG_STATUS_LISTEN
-              value: 0.0.0.0:8100
+            # - name: KONG_STATUS_LISTEN
+            #   value: 0.0.0.0:8100
           ports:
             - name: admin
               containerPort: 8001
@@ -81,19 +81,19 @@ spec:
             # - name: cluster-udp
             #   containerPort: 7946
             #   protocol: UDP
-            - name: metrics
-              containerPort: 8100
-              protocol: TCP
+            # - name: metrics
+            #   containerPort: 8100
+            #   protocol: TCP
           imagePullPolicy: IfNotPresent
-          livenessProbe:
-           httpGet:
-             path: /status
-             port: 8100
-           initialDelaySeconds: 120
-           timeoutSeconds: 5
-          # readinessProbe:
-          #   exec:
-          #     command:
-          #       - /healthcheck.sh
-          #   initialDelaySeconds: 60
-          #   timeoutSeconds: 5
+          # livenessProbe:
+          #  httpGet:
+          #    path: /status
+          #    port: 8100
+          #  initialDelaySeconds: 120
+          #  timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /healthcheck.sh
+            initialDelaySeconds: 60
+            timeoutSeconds: 5

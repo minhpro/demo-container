@@ -68,17 +68,6 @@ Run migration job on k8s
 
 ## Run kong-api-gateway on k8s
 
-Replace listen_address with your address (e,g, Vboxnet1, e,g 192.168.59.1)
-
-```yaml
-- name: KONG_PROXY_LISTEN
-    value: '192.168.59.1:8000, 192.168.59.1:8443 ssl'
-    # value: '0.0.0.0:8000, 127.0.0.1:8443 ssl'
-- name: KONG_ADMIN_LISTEN
-    value: '192.168.59.1:8001, 192.168.59.1:8444 ssl'
-    # value: '0.0.0.0:8001, 127.0.0.1:8444 ssl'
-```
-
 Create k8s deployment
 
 `kubectl apply -f k8s/demo-kong-gateway-deployment.yml`
@@ -90,3 +79,51 @@ Create k8s service
 export service to external
 
 `minikube service --url demo-kong-gateway`
+
+The above command output is this service external URL, called <KONG-ADMIN-URL>, <KONG-PROXY-URL>
+
+## Add route and service to Kong
+
+Create a service
+
+```shell
+curl -i -X POST \
+  --url http://<KONG-ADMIN-URL>/services/ \
+  --data 'name=demo-container-service' \
+  --data 'url=http://demo-container-service'
+```
+
+```shell
+curl -i -X POST \
+--url http://192.168.59.100:31181/services/ \
+--data 'name=demo-container-service' \
+--data 'url=http://demo-container-service'
+```
+
+Add route to service
+
+```shell
+curl -i -X POST \
+  --url http://<KONG-ADMIN-URL>/services/demo-container-service/routes \
+  --data 'hosts[]=example.com'
+```
+
+```shell
+curl -i -X POST \
+  --url http://192.168.59.100:31181/services/demo-container-service/routes \
+  --data 'hosts[]=example.com'
+```
+
+Forward request
+
+```shell
+curl -i -X GET \
+  --url http://<KONG-PROXY-URL>/ \
+  --header 'Host: example.com'
+```
+
+```shell
+curl -i -X GET \
+  --url http://192.168.59.100:31180/ \
+  --header 'Host: example.com'
+```

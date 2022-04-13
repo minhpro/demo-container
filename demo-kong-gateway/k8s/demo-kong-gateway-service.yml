@@ -21,8 +21,8 @@ spec:
     - port: 8000
       name: proxy-http
       targetPort: 8000
-      nodePort: 30180
+      nodePort: 31180
     - port: 8001
       name: kong-admin
       targetPort: 8001
-      nodePort: 30181
+      nodePort: 31181
