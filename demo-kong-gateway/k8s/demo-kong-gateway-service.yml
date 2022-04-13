@@ -11,7 +11,8 @@ spec:
   # "select pods with the label 'app' set to 'echo-hostname'"
   # and forward the request to one of them
   selector:
-    app: demo-kong-gateway
+    # app: demo-kong-gateway
+    name: demo-kong-gateway
 
   ports:
     # Three types of ports for a service
