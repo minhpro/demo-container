@@ -37,6 +37,9 @@ java8
 
 **Start minikube cluster**
 
+Start minikube with `virtualbox` driver, all containers will run on a private network.
+So that, they can connect to other networks included local host network.
+
 `minikube start --driver=virtualbox`
 
 Check the virtualbox network IP

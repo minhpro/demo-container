@@ -97,7 +97,14 @@ curl -i -X POST \
 curl -i -X POST \
 --url http://192.168.59.100:31181/services/ \
 --data 'name=demo-container-service' \
---data 'url=http://demo-container-service'
+--data 'url=http://demo-container-service:8080'
+```
+
+```
+curl -i -X POST \
+--url http://192.168.59.100:30180/services/ \
+--data 'name=demo-container-service' \
+--data 'url=http://demo-container-service:8080'
 ```
 
 Add route to service
@@ -114,6 +121,13 @@ curl -i -X POST \
   --data 'hosts[]=example.com'
 ```
 
+
+```
+curl -i -X POST \
+  --url http://192.168.59.100:30180/services/demo-container-service/routes \
+  --data 'paths[]=/test'
+```
+
 Forward request
 
 ```shell
@@ -127,3 +141,20 @@ curl -i -X GET \
   --url http://192.168.59.100:31180/ \
   --header 'Host: example.com'
 ```
+
+```
+curl -i -X GET \
+  --url http://192.168.59.100:30080/test/greet
+  ```
+
+## Update image
+
+Build new image
+
+`docker build -t demo-kong-gateway:v2 .`
+
+Update k8s deployment image
+
+`kubectl set image deployment demo-kong-gateway kong=demo-kong-gateway:v2`
+
+`kubectl set image deployment api-gateway kong=api-gateway:v2`
